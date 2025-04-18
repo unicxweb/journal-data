@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trademark Status Checker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      padding: 40px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    form {
+      margin-top: 30px;
+    }
+    input[type="file"] {
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #2b8a3e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #237032;
+    }
+    #message {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    a.download-link {
+      display: block;
+      margin-top: 10px;
+      color: #007bff;
+      text-decoration: none;
+    }
+    a.download-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Trademark Status Checker</h1>
+
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".xlsx" required />
+    <br />
+    <button type="submit">Upload and Check</button>
+  </form>
+
+  <div id="message"></div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      message.textContent = 'Processing file... Please wait.';
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.updatedFile) {
+          message.innerHTML = `
+            ✅ ${result.message}<br/>
+            <a class="download-link" href="${result.updatedFile}" download>Click here to download the updated Excel file</a>
+          `;
+        } else {
+          message.textContent = 'Something went wrong!';
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        message.textContent = 'An error occurred. Please try again.';
+      }
+    });
+  </script>
+</body>
+</html>
